@@ -6,27 +6,29 @@ class Square:
     """Square class that represents a square on a Sudoku grid. Holds a number and
     a list of the possible numbers that can go in it
     """
-    def __init__(self, group, number):
+    def __init__(self, group, number, changeable=True):
         self.number = number
         self.group_num = group
         self.can_have = [number == 0] * 9
-        self.is_wrong = False
+        self.has_conflict = False
+        self.changeable = changeable
 
     def reset_can_have(self):
         if self.number == 0:
             self.can_have = [True] * 9
 
     def set_number(self, number):
-        if self.number == 0 and self.can_have[number]:
+        if self.changeable and self.can_have[number]:
             self.can_have = [False] * 9
             self.number = number + 1
 
-    def set_wrong(self):
-        self.is_wrong = True
+    def set_conflict(self):
+        self.has_conflict = True
 
     def reset(self):
-        self.reset_can_have()
-        self.number = 0
+        if self.changeable:
+            self.reset_can_have()
+            self.number = 0
 
 
 class Grid:
@@ -37,11 +39,11 @@ class Grid:
     # offsets for displaying number possibilities
     OFFSETS = [(0, 0), (15, 0), (30, 0), (0, 15), (15, 15), (30, 15), (0, 30), (15, 30), (30, 30)]
 
-    def __init__(self, grid, show_wrong=True, show_possible=True):
+    def __init__(self, grid, show_conflicts=True, show_possible=True):
         self.elements = []
         self.groups = []
         self.solvable = True
-        self.show_wrong = show_wrong
+        self.show_conflicts = show_conflicts
         self.show_possible = show_possible
         for i in range(9):
             self.elements.append([])
@@ -188,11 +190,26 @@ class Grid:
             print([col for col in row])
         return new_list
 
-    def set_square(self, pos, number):
+    def set_square(self, pos, number, override_can_have=False):
         """This function sets the square at 'pos' to 'number'"""
-        self.elements[pos[0]][pos[1]].set_number(number - 1)
+        square = self.elements[pos[0]][pos[1]]
+        if number == 0:
+            square.reset()
+        else:
+            if override_can_have:
+                square.reset()
+            square.set_number(number - 1)
+
         if self.show_possible:
             self.assign_possible()
+
+    def set_board(self):
+        """This method sets all the current squares on the board and makes
+            them unchangeable"""
+        for i in self.elements:
+            for j in i:
+                if j.number != 0:
+                    j.changeable = False
 
     def draw(self, screen, is_solve=True):
         """This function draws the Grid onto the passed surface. Draws the possibilities if is_solve is True"""
@@ -201,10 +218,11 @@ class Grid:
                 square = self.elements[row][col]
 
                 if square.number != 0:
-                    number = self.FONT.render(str(square.number), True, [(255, 255, 255), (255, 0, 0)]
-                                                                        [square.is_wrong])
+                    number = self.FONT.render(str(square.number), True, [[(255, 255, 0), (255, 255, 255)][square.changeable],
+                                                                         (255, 0, 0)][square.has_conflict])
                     screen.blit(number, (50 * (col + 1) - number.get_width() // 2,
                                          50 * (row + 1) - number.get_height() // 2))
+
                 elif is_solve or self.show_possible:
                     for i in range(len(square.can_have)):
                         if square.can_have[i]:
@@ -215,12 +233,17 @@ class Grid:
 
     def clear(self):
         """This function clears the Grid"""
-        self.__init__([[0] * 9] * 9, show_wrong=False, show_possible=False)
+        self.__init__([[0] * 9] * 9, show_conflicts=False, show_possible=False)
 
     def check_correct(self):
-        """This function checks if the Grid is correct or not so far"""
-        self.show_wrong = True
+        """This function checks if the Grid is correct or not so far,
+            and finds any conflicts"""
         self.solvable = True
+
+        for group in self.groups:
+            for square in group:
+                square.has_conflict = False
+
         all_squares = self.groups + self.elements
 
         for col in range(9):
@@ -231,6 +254,9 @@ class Grid:
             for i in range(1, 10):
                 if numbers.count(i) > 1:
                     self.solvable = False
+                    for square in square_list:
+                        if square.number == i:
+                            square.has_conflict = True
         return self.solvable
 
 
