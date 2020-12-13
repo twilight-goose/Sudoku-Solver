@@ -118,12 +118,12 @@ def main():
                        pygame.K_KP6: 6, pygame.K_KP7: 7, pygame.K_KP8: 8, pygame.K_KP9: 9})
 
     # 4 GUI buttons that the user can interact with
-    solve_button = ui.Button("Solve", (500, 25))
-    check_button = ui.Button("Check", (500, 100))
-    show_button = ui.Button("Show Possible", (500, 175))
-    clear_button = ui.Button("Clear", (500, 250))
-    load_random = ui.Button("Generate Grid", (500, 325))
-    hardest_button = ui.Button("Load Hardest", (500, 400))
+    solve_button = ui.Button("Solve", (502, 25))
+    check_button = ui.Button("Check", (502, 100))
+    show_button = ui.Button("Show Possible", (502, 175))
+    clear_button = ui.Button("Clear", (502, 250))
+    load_random = ui.Button("Generate Grid", (502, 325))
+    hardest_button = ui.Button("Load Hardest", (502, 400))
     # list of buttons
     buttons = [solve_button, check_button, clear_button, show_button, load_random, hardest_button]
 
