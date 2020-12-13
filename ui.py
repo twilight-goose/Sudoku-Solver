@@ -9,8 +9,6 @@ class Button:
     def __init__(self, text, pos, colour=(255, 255, 255)):
         self.image = pygame.Surface((150, 50))
         self.image.fill((120, 120, 120))
-        self.x_range = (pos[0], pos[0] + 300)
-        self.y_range = (pos[1], pos[1] + 100)
         self.text = self.font.render(text, True, colour)
         self.colour = colour
         self.image.blit(self.text, ((self.image.get_width() - self.text.get_width()) // 2,
