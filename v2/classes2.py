@@ -139,6 +139,14 @@ class Grid:
                     row[col].candidates[num - 1] = False
 
     def solve_singles(self):
+        """"""
+        for row in self.rows:
+            for square in row:
+            
+                if square.candidates.count(True) == 1:
+                    square.set_number(square.candidates.index(True))
+
+    def solve_single(self):
         """This function solves the first single it finds and returns True. If it can't find any
             singles or solving a single results in it not being solvable, return False."""
         all_squares = self.quadrants + self.rows
@@ -233,8 +241,9 @@ class Grid:
         return new_list
 
     def set_square(self, pos, number, override_candidates=False):
-        """This function sets the square at 'pos' to 'number'"""
+        """This function sets the square at pos to number"""
         square = self.rows[pos[0]][pos[1]]
+        
         if number == 0:
             square.reset()
         else:
@@ -319,7 +328,7 @@ class Timer:
 #-------------------------------------------------------------------------------
 
 def find_occurrences(squares):
-    """This function returns a list of lists of indexes of the possibilities of numbers"""
+    """This function returns a list of lists of indexes of the candidates"""
     # this list tracks the indexes in the quadrant that an occurrence appeared
     indexes = []
     for i in range(9):
