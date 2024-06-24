@@ -114,29 +114,24 @@ class Grid:
 
     def assign_candidates(self):
         # check the grid and assign squares their candidates numbers
-        for row in range(9):
-            for col in range(9):
-                self.rows[row][col].reset_candidates()
-
-        for num in range(1, 10):
-            occurrences = []
-
-            for row_num in range(9):
-                for col_num in range(9):
-                    if self.rows[row_num][col_num].number == num:
-                        occurrences.append([row_num, col_num])
-
-            for occurrence in occurrences:
-                row, col = occurrence
-
-                for square in self.rows[row]:
-                    square.candidates[num - 1] = False
-
-                for square in self.quadrants[self.rows[row][col].quad_num]:
-                    square.candidates[num - 1] = False
-
-                for row in self.rows:
-                    row[col].candidates[num - 1] = False
+        def assign_set(set_list):
+            for _set in set_list:
+            
+                nums = set(sq.number - 1 for sq in _set if sq.number != 0)
+                for square in _set:
+                    
+                    for num in nums:
+                        square.candidates[num] = False
+        
+        self.reset_candidates()
+        assign_set(self.rows)
+        assign_set(self.cols)
+        assign_set(self.quadrants)
+    
+    def reset_candidates(self):
+        for row in self.rows:
+            for square in row:
+                square.reset_candidates()
 
     def solve_singles(self):
         """"""
@@ -145,7 +140,9 @@ class Grid:
             
                 if square.candidates.count(True) == 1:
                     square.set_number(square.candidates.index(True))
-
+        
+        self.assign_candidates()
+        
     def solve_single(self):
         """This function solves the first single it finds and returns True. If it can't find any
             singles or solving a single results in it not being solvable, return False."""

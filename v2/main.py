@@ -147,7 +147,7 @@ def main():
                     grid.set_square(selected_cord, 0)           # clear the selected square
                 elif event.key in number_key.keys():
                     number = number_key[event.key]
-                    grid.set_square(selected_cord, number, override_can_have=True)      # place a number in a square
+                    grid.set_square(selected_cord, number, override_candidates=True)      # place a number in a square
                 elif event.key == pygame.K_UP:
                     if selected_cord[0] != 0:
                         selected_cord[0] -= 1
