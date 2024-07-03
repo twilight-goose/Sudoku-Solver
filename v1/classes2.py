@@ -1,6 +1,12 @@
 import pygame
 pygame.init()
 
+from datetime import datetime
+from datetime import timedelta
+from datetime import date
+
+
+
 
 class Square:
     """Square class that represents a square on a Sudoku grid. Holds a number and
@@ -186,8 +192,7 @@ class Grid:
             new_list.append([])
             for j in range(len(self.elements[i])):
                 new_list[i].append(self.elements[i][j].number)
-        for row in new_list:
-            print([col for col in row])
+
         return new_list
 
     def set_square(self, pos, number, override_can_have=False):
@@ -261,11 +266,19 @@ class Grid:
 
 
 def find_occurrences(squares):
-    """This function returns a list of lists of indexes of the possibilities of numbers"""
+    """This function returns a list of lists of indexes of the possibilities of numbers
+    
+    returns
+    
+    list of 9
+        lists of square
+            where square has candidate i = 1-9
+    """
     # this list tracks the indexes in the group that an occurrence appeared
     indexes = []
     for i in range(9):
         indexes.append([])
+        
     # goes through every square
     for square in squares:
         # checks if the square can have each number from 1-9
@@ -275,4 +288,22 @@ def find_occurrences(squares):
                 indexes[i].append(squares.index(square))
                 
     return indexes
+
+#######################################################################################
+#######################################################################################
+
+
+class Timer:
+    """
+    Just for timing operations to compare temporal efficiency.
+    """
+    def __init__(self):
+        self.s_time = datetime.now()
+
+    def start(self):
+        self.s_time = datetime.now()
+
+    def stop(self):
+        d = datetime.now() - self.s_time
+        print("That took {0} seconds and {1} microseconds\n".format(d.seconds, d.microseconds))
 
