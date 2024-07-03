@@ -64,11 +64,12 @@ def solve(grid):
     grids = [grid]
     solved = False
     solved_grid = None
-
+    
+    timer = classes.Timer()
+    
     # run the function until either the user wants to exit or the grid is solved
     while not solved and RUN:
-        # refresh at 120 cycles per second so solving speed is not limited by frame rate
-        # CLOCK.tick(120)
+        # No refresh cycle limitation
         # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -97,6 +98,7 @@ def solve(grid):
         current_grid.draw(SCREEN, is_solve=True)
         pygame.display.flip()
     # return the solved grid if it is solved
+    timer.stop()
     return solved_grid
 
 
@@ -157,10 +159,6 @@ def main():
                 elif event.key == pygame.K_RIGHT:
                     if selected_cord[1] != 8:
                         selected_cord[1] += 1
-                elif event.key == pygame.K_t:
-                    timer = classes.Timer()
-                    grid.assign_possible()
-                    timer.stop()
                   
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Mouse input - selecting a square on the grid and buttons

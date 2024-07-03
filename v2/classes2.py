@@ -107,9 +107,6 @@ class Grid:
             
                 nums = [sq.number - 1 for sq in _set if sq.number != 0]
                 
-                total_candids = 0
-                unique_candids = set()
-                
                 for square in _set:
                     
                     # potentially replace with list mapping
@@ -117,19 +114,10 @@ class Grid:
                     # numpy
                     for num in nums:
                         square.candidates[num] = False 
-                    for i in range(9):
-                        if square.candidates[i]:
-                            unique_candids.add(i)
                     
-                    candidate_count = square.candidates.count(True)
-                    total_candids += candidate_count
-                    
-                    if square.number == 0 and candidate_count == 0:
+                    if square.number == 0 and square.candidates.count(True) == 0:
                         self.solvable = False
-                        
-                if total_candids < len(unique_candids):
-                    self.solvable = False
-        
+
         self.reset_candidates()
         assign_set(self.rows)
         assign_set(self.cols)
@@ -278,6 +266,7 @@ class Grid:
                         self.assign_candidates()
                         return False
                     else:
+                        
                         ret_val = True
                     
                 if len(indexes[i]) == 1:
@@ -394,6 +383,11 @@ class Grid:
                             
                     return grids
         return self.brute_force(target + 1)
+        
+    def __str__(self):
+        for row in self.rows:
+            print([col.number for col in row])
+        print("")
 
 
 def find_occurrences(squares):
@@ -406,7 +400,6 @@ def find_occurrences(squares):
     indexes = [[] for x in range(9)]
     # goes through every square
     for square in squares:
-        print(square.candidates)
         # checks if the square can have each number from 1-9
         for i in range(9):
             

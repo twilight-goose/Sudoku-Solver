@@ -77,25 +77,26 @@ def solve(grid):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     RUN = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
         
-                if len(grids) == 0:
-                    return False
-                # solving algorithm
-                current_grid = grids[-1]            # choose the last grid in the list of grids
-                result = current_grid.solve()       # do a single step in the solving process
-                grids.remove(current_grid)
-                
-                if current_grid.is_solved():      # if the grid has been solved
-                    solved = True
-                    solved_grid = current_grid
-                elif result:                        # if the return value is a grid (brute force returns grid)
-                    grids.extend(result)                # replace it with the different possibilities
+        if len(grids) == 0:
+            return False
+        # solving algorithm
+        current_grid = grids[-1]            # choose the last grid in the list of grids
+        result = current_grid.solve()       # do a single step in the solving process
 
-                # refresh the screen and board (much slower)
-                draw_board(SCREEN, None, [-1, -1])
-                current_grid.draw(SCREEN, is_solve=True)
-                pygame.display.flip()
+        if not current_grid.solvable:       # if the grid is no longer solvable, delete it
+            grids.pop(-1)
+        elif current_grid.is_solved():      # if the grid has been solved
+            solved = True                           # exit the loop
+            solved_grid = current_grid              # and return the solution
+        elif result:                        # if the return value is a grid (brute force returns grid)
+            grids.remove(current_grid)          # remove the current grid from the list
+            grids.extend(result)               # replace it with the different possibilities
+
+        # refresh the screen and board (much slower)
+        draw_board(SCREEN, None, [-1, -1])
+        current_grid.draw(SCREEN, is_solve=True)
+        pygame.display.flip()
         
     timer.stop()
     # return the solved grid if it is solved
@@ -159,9 +160,9 @@ def main():
                     if selected_cord[1] != 8:
                         selected_cord[1] += 1
                 elif event.key == pygame.K_t:
-                    timer = classes.Timer()
-                    grid.assign_candidates()
-                    timer.stop()
+                    for i in range(10):
+                        grid = classes.Grid(HARDEST_GRID, show_candidates=True)
+                        grid = solve(grid)
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Mouse input - selecting a square on the grid and buttons
