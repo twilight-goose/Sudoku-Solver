@@ -117,7 +117,7 @@ class Grid:
                     
                     if square.number == 0 and square.candidates.count(True) == 0:
                         self.solvable = False
-
+       
         self.reset_candidates()
         assign_set(self.rows)
         assign_set(self.cols)
@@ -190,7 +190,6 @@ class Grid:
                                          50 * (row + 1) - number.get_height() // 2))
 
                 elif is_solve or self.show_candidates:
-                    self.assign_candidates()
                     
                     for i in range(len(square.candidates)):
                         if square.candidates[i]:
@@ -231,17 +230,19 @@ class Grid:
                 
         return self.solvable
     
-    def solve(self):
+    def solve(self):                    
         if not self.is_solved():
             i = False
 
             if not self.solve_singles() and self.solvable:      # no singles to solve, still solvable
-                #if not self.paired_doubles():                   # if no paired doubles
-                # if there are no singles to be solved and the grid can still be solved, brute force
-                i = self.brute_force(2)
-                # i is a list of different grid possibilities
-            self.assign_candidates()
-            # return the grids
+                if not self.naked_doubles():                   # if no paired doubles
+                    # if there are no singles to be solved and the grid can still be solved, brute force
+                    if not self.naked_triples():
+                        return self.brute_force(2)
+                    # i is a list of different grid possibilities
+            else:
+                # if a single was solved
+                self.assign_candidates()
             return i
 
     def solve_singles(self):
@@ -266,7 +267,6 @@ class Grid:
                         self.assign_candidates()
                         return False
                     else:
-                        
                         ret_val = True
                     
                 if len(indexes[i]) == 1:
@@ -306,10 +306,12 @@ class Grid:
         # if it goes through every row, column, and group and cannot find any singles return False
         # so it starts brute forcing
         return ret_val
+    
+    def naked_doubles(self):
+        ret_val = False
         
-    def paired_doubles(self):
-        """solve paired doubles"""
         for _set_ in self.rows + self.cols + self.quadrants:
+            """solve paired doubles"""
             # for each set of 9 squares
             # list of all candidates for squares in the set
             cands = [sq.candidates for sq in _set_]
@@ -321,46 +323,52 @@ class Grid:
                 if cands[i].count(True) == 2 and \
                         cands.count(cands[i]) == 2:
                     # retrieve the candidate values
-                    pair1 = cands[i].index(True)
-                    pair2 = cands[i].index(True, pair1 + 1)
+                    can1 = cands[i].index(True)
+                    can2 = cands[i].index(True, can1 + 1)
                     
                     # remove those candidates from the other squares
                     # in the set becuase those two values must be
                     # in those two squares
-                    for sq in _set_:
-                        sq.candidates[pair1] = False
-                        sq.candidates[pair2] = False
-                   
-                    return True
-        return False
+                    for sq in [sq for sq in _set_ if sq.candidates != cands[i]]:
+                        
+                        if sq.candidates[can1] or sq.candidates[can2]:
+                            ret_val = True
+
+                            sq.candidates[can1] = False
+                            sq.candidates[can2] = False
+
+        return ret_val
     
-    def paired_triples(self):
+    def naked_triples(self):
+        ret_val = False
+        
         for _set_ in self.rows + self.cols + self.quadrants:
             # for each set of 9 squares
             # list of all candidates for squares in the set
             cands = [sq.candidates for sq in _set_]
             
             # for each square in the set
-            for i in range(8):
+            for i in range(7):
                 # if the square has only 2 candidates and 
                 # another square only has the same two candidates
                 if cands[i].count(True) == 3 and \
                         cands.count(cands[i]) == 3:
                     # retrieve the candidate values
-                    pair1 = cands[i].index(True)
-                    pair2 = cands[i].index(True, pair1 + 1)
-                    pair3 = cands[i].index(True, pair2 + 1)
+                    can1 = cands[i].index(True)
+                    can2 = cands[i].index(True, can1 + 1)
+                    can3 = cands[i].index(True, can2 + 1)
                     
                     # remove those candidates from the other squares
                     # in the set becuase those two values must be
                     # in those two squares
-                    for sq in _set_:
-                        sq.candidates[pair1] = False
-                        sq.candidates[pair2] = False
-                        sq.candidates[pair3] = False
-                   
-                    return True
-        return False
+                    for sq in [sq for sq in _set_ if sq.candidates != cands[i]]:
+                        if sq.candidates[can1] or sq.candidates[can2] or sq.candidates[can3]:
+                            ret_val = True
+                            sq.candidates[can1] = False
+                            sq.candidates[can2] = False
+                            sq.candidates[can3] = False
+
+        return ret_val
     
     def brute_force(self, target):
         """This function finds x number of possible boards and returns them all"""
@@ -385,10 +393,11 @@ class Grid:
         return self.brute_force(target + 1)
         
     def __str__(self):
+        ret_val = ""
         for row in self.rows:
-            print([col.number for col in row])
-        print("")
-
+            ret_val += str([col.number for col in row]) + "\n"
+        return ret_val
+        
 
 def find_occurrences(squares):
     """returns
