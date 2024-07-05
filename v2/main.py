@@ -56,7 +56,7 @@ def solve(grid):
     Grid object. If it's not solvable, it returns False.
     """
     # determine if the given grid is solvable or not
-    if not grid.check_correct() or not grid.check:
+    if not grid.check_correct():
         return False        # return False if the grid cannot be solved
 
     # if the grid can be solved, initialize variables needed to begin solving
@@ -77,7 +77,7 @@ def solve(grid):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     RUN = False
-        
+                    
         if len(grids) == 0:
             return False
         # solving algorithm
@@ -144,9 +144,11 @@ def main():
                     selected_cord = [-1, -1]                    # deselect the square
                 elif event.key in [pygame.K_DELETE, pygame.K_BACKSPACE]:
                     grid.set_square(selected_cord, 0)           # clear the selected square
+                    solve_button.reset()
                 elif event.key in number_key.keys():
                     number = number_key[event.key]
                     grid.set_square(selected_cord, number, override_candidates=True)      # place a number in a square
+                    solve_button.reset()
                 elif event.key == pygame.K_UP:
                     if selected_cord[0] != 0:
                         selected_cord[0] -= 1
@@ -170,17 +172,19 @@ def main():
                 x, y = pos
                 if x in range(25, 475) and y in range(25, 475):
                     selected_cord = [(y - 25) // 50, (x - 25) // 50]
+                    
                 elif x in range(500, 650):
                     if y in range(25, 75):
+                        solve_button.reset()
                         solved_grid = solve(grid)
+                        
                         if solved_grid:
-                            solve_button.reset()
                             grid = solved_grid
                         elif solved_grid is not None:
                             solve_button.cannot_solve()
                     elif y in range(100, 150):
-                        grid.check()
-                        grid.show_conflicts = not grid.check_correct()
+                        i = grid.check_correct()
+                        grid.show_conflicts = not i
                     elif y in range(175, 225):
                         grid.assign_candidates()
                         grid.show_candidates = not grid.show_candidates

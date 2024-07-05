@@ -109,9 +109,6 @@ class Grid:
                 
                 for square in _set:
                     
-                    # potentially replace with list mapping
-                    # list comprehension
-                    # numpy
                     for num in nums:
                         square.candidates[num] = False 
                     
@@ -127,10 +124,6 @@ class Grid:
         for row in self.rows:
             for square in row:
                 square.reset_candidates()
-    
-    def check(self):
-        """This function checks and returns if the grid is solvable"""
-        return self.assign_candidates()
 
     def is_solved(self):
         def sum_squares(squares):
@@ -206,25 +199,26 @@ class Grid:
         """This function checks if the Grid is correct or not so far,
             and finds any conflicts"""
         all_squares = self.quadrants + self.rows + self.cols
-        for square_list in all_squares:
+        self.solvable = True
+        
+        for square_list in self.quadrants:
             for square in square_list:
                 square.has_conflict = False
 
         for square_list in all_squares:
-        
-            numbers = [square.number for square in square_list]
             seen_numbers = []
             
             for square in square_list:
             
                 num = square.number
                 
-                if num != 0:
-                    if num in seen_numbers:
-                    
-                        square.has_conflict = True
-                        square_list[seen_numbers.index(num)].has_conflict = True
-                        self.solvable = False
+                if num != 0 and num in seen_numbers:
+                    square.has_conflict = True
+                    square_list[seen_numbers.index(num)].has_conflict = True
+                    self.solvable = False
+                
+                elif square.number == 0 and square.candidates.count(True) == 0:
+                    self.solvable = False
                         
                 seen_numbers.append(square.number)
                 
