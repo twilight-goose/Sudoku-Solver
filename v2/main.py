@@ -161,10 +161,6 @@ def main():
                 elif event.key == pygame.K_RIGHT:
                     if selected_cord[1] != 8:
                         selected_cord[1] += 1
-                elif event.key == pygame.K_t:
-                    for i in range(10):
-                        grid = classes.Grid(HARDEST_GRID, show_candidates=True)
-                        grid = solve(grid)
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Mouse input - selecting a square on the grid and buttons
